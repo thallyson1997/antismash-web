@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Resultados - antiSMASH</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Resultados da Anotação</h1>
+    <p>Run: {{ run_name }}</p>
+    {% if proteins %}
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Record ID</th>
+              <th>Gene / Locus</th>
+              <th>Product</th>
+              <th>AA length</th>
+              <th>Sequence (first 120 aa)</th>
+              <th>Source .gbk</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in proteins %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ p.record_id }}</td>
+              <td>{{ p.gene }}</td>
+              <td>{{ p.product }}</td>
+              <td>{{ p.aa_length }}</td>
+              <td style="font-family: monospace; white-space: pre-wrap;">{{ p.protein_seq[:120] }}{% if p.aa_length > 120 %}...{% endif %}</td>
+              <td>{{ p.source_file }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>Nenhuma proteína encontrada no resultado. Verifique os logs do processamento.</p>
+    {% endif %}
+    <p><a href="{{ url_for('index') }}">Voltar</a></p>
+  </div>
+</body>
+</html>

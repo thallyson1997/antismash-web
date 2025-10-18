@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Progresso - antiSMASH</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .progress-container {
+      margin: 20px 0;
+      background: #f0f0f0;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 30px;
+      position: relative;
+    }
+    .progress-bar {
+      background: linear-gradient(90deg, #4CAF50, #45a049);
+      height: 100%;
+      transition: width 0.5s ease;
+      border-radius: 10px;
+    }
+    .progress-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+      color: #333;
+      z-index: 1;
+    }
+    .status-message {
+      margin: 10px 0;
+      padding: 10px;
+      background: #e7f3ff;
+      border-left: 4px solid #2196F3;
+      border-radius: 4px;
+    }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .completed {
+      background: #d4edda !important;
+      border-left-color: #28a745 !important;
+    }
+    .error {
+      background: #f8d7da !important;
+      border-left-color: #dc3545 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Progresso da Análise antiSMASH</h1>
+    <p>Run: <strong>{{ run_name }}</strong></p>
+    
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+      <div class="progress-text" id="progressText">0%</div>
+    </div>
+    
+    <div class="status-message" id="statusMessage">
+      <span class="spinner" id="spinner"></span>
+      <span id="statusText">Iniciando...</span>
+    </div>
+    
+    <p><a href="{{ url_for('index') }}">Voltar ao início</a></p>
+  </div>
+
+  <script>
+    const runId = '{{ run_id }}';
+    const runName = '{{ run_name }}';
+    
+    function updateProgress() {
+      fetch(`/api/progress/${runId}`)
+        .then(response => response.json())
+        .then(data => {
+          const progressBar = document.getElementById('progressBar');
+          const progressText = document.getElementById('progressText');
+          const statusMessage = document.getElementById('statusMessage');
+          const statusText = document.getElementById('statusText');
+          const spinner = document.getElementById('spinner');
+          
+          // Atualizar barra de progresso
+          const percentage = data.percentage || 0;
+          progressBar.style.width = percentage + '%';
+          progressText.textContent = percentage + '%';
+          
+          // Atualizar mensagem de status
+          statusText.textContent = data.message || 'Processando...';
+          
+          // Verificar se completou
+          if (data.step === 'completed') {
+            statusMessage.classList.add('completed');
+            spinner.style.display = 'none';
+            statusText.textContent = 'Análise concluída! Redirecionando...';
+            
+            // Redirecionar para resultados após 2 segundos
+            setTimeout(() => {
+              window.location.href = `/results/${runName}`;
+            }, 2000);
+            
+          } else if (data.step === 'error') {
+            statusMessage.classList.add('error');
+            spinner.style.display = 'none';
+            clearInterval(progressInterval);
+            
+          } else {
+            // Continuar atualizando se ainda está processando
+            setTimeout(updateProgress, 2000);
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao buscar progresso:', error);
+          setTimeout(updateProgress, 5000); // Tentar novamente em 5s
+        });
+    }
+    
+    // Iniciar atualizações de progresso
+    updateProgress();
+  </script>
+</body>
+</html>

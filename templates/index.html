@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>antiSMASH Web - Upload</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Upload de arquivo FASTA / GBK</h1>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for m in messages %}
+          <li>{{ m }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".fasta,.fa,.fna,.gb,.gbk,.txt" required>
+      <br><br>
+      <button type="submit">Enviar e Anotar (antiSMASH)</button>
+    </form>
+    <p class="note">OBS: Você será redirecionado para uma página de progresso onde poderá acompanhar o andamento da análise em tempo real.</p>
+  </div>
+</body>
+</html>
