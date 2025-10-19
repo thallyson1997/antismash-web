@@ -4,44 +4,298 @@
   <meta charset="utf-8">
   <title>Resultados - antiSMASH</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Estilos para as abas */
+    .tabs {
+      display: flex;
+      background-color: #f1f1f1;
+      border-bottom: 2px solid #ddd;
+      margin-bottom: 20px;
+    }
+    
+    .tab-button {
+      background-color: inherit;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 20px;
+      font-size: 16px;
+      transition: 0.3s;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab-button:hover {
+      background-color: #ddd;
+    }
+    
+    .tab-button.active {
+      background-color: #fff;
+      border-bottom: 3px solid #4CAF50;
+      font-weight: bold;
+    }
+    
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* Estilos para clusters */
+    .cluster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .cluster-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      background: #f9f9f9;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .cluster-header {
+      background: #4CAF50;
+      color: white;
+      padding: 10px;
+      margin: -15px -15px 15px -15px;
+      border-radius: 8px 8px 0 0;
+      font-weight: bold;
+    }
+    
+    .cluster-info {
+      margin-bottom: 10px;
+    }
+    
+    .cluster-info strong {
+      color: #333;
+    }
+    
+    .cluster-genes {
+      background: #fff;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .gene-item {
+      padding: 5px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+    
+    .gene-item:last-child {
+      border-bottom: none;
+    }
+    
+    .stats-summary {
+      background: #e7f3ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #2196F3;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .stat-item {
+      text-align: center;
+      padding: 10px;
+      background: white;
+      border-radius: 4px;
+    }
+    
+    .stat-number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>Resultados da Anotação</h1>
-    <p>Run: {{ run_name }}</p>
-    {% if proteins %}
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Record ID</th>
-              <th>Gene / Locus</th>
-              <th>Product</th>
-              <th>AA length</th>
-              <th>Sequence (first 120 aa)</th>
-              <th>Source .gbk</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for p in proteins %}
-            <tr>
-              <td>{{ loop.index }}</td>
-              <td>{{ p.record_id }}</td>
-              <td>{{ p.gene }}</td>
-              <td>{{ p.product }}</td>
-              <td>{{ p.aa_length }}</td>
-              <td style="font-family: monospace; white-space: pre-wrap;">{{ p.protein_seq[:120] }}{% if p.aa_length > 120 %}...{% endif %}</td>
-              <td>{{ p.source_file }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    <h1>Resultados da Anotação antiSMASH</h1>
+    <p><strong>Run:</strong> {{ run_name }}</p>
+    
+    <!-- Abas de navegação -->
+    <div class="tabs">
+      <button class="tab-button active" onclick="openTab(event, 'proteins-tab')">
+        🧬 Proteínas ({{ proteins|length if proteins else 0 }})
+      </button>
+      <button class="tab-button" onclick="openTab(event, 'clusters-tab')">
+        🏭 Clusters de Metabolitos ({{ clusters|length if clusters else 0 }})
+      </button>
+    </div>
+    
+    <!-- Conteúdo da Aba 1: Proteínas -->
+    <div id="proteins-tab" class="tab-content active">
+      <div class="stats-summary">
+        <h3>📊 Resumo das Proteínas</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number">{{ proteins|length if proteins else 0 }}</div>
+            <div class="stat-label">Total de Proteínas</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ (proteins|selectattr('product')|reject('equalto', '')|list|length) if proteins else 0 }}</div>
+            <div class="stat-label">Com Anotação Funcional</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ (proteins|length - (proteins|selectattr('product')|reject('equalto', '')|list|length)) if proteins else 0 }}</div>
+            <div class="stat-label">Hipotéticas</div>
+          </div>
+        </div>
       </div>
-    {% else %}
-      <p>Nenhuma proteína encontrada no resultado. Verifique os logs do processamento.</p>
-    {% endif %}
-    <p><a href="{{ url_for('index') }}">Voltar</a></p>
+      
+      {% if proteins %}
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Record ID</th>
+                <th>Gene / Locus</th>
+                <th>Product</th>
+                <th>AA length</th>
+                <th>Sequence (first 120 aa)</th>
+                <th>Source .gbk</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in proteins %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ p.record_id }}</td>
+                <td>{{ p.gene }}</td>
+                <td>{{ p.product }}</td>
+                <td>{{ p.aa_length }}</td>
+                <td style="font-family: monospace; white-space: pre-wrap;">{{ p.protein_seq[:120] }}{% if p.aa_length > 120 %}...{% endif %}</td>
+                <td>{{ p.source_file }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p>Nenhuma proteína encontrada no resultado. Verifique os logs do processamento.</p>
+      {% endif %}
+    </div>
+    
+    <!-- Conteúdo da Aba 2: Clusters -->
+    <div id="clusters-tab" class="tab-content">
+      <div class="stats-summary">
+        <h3>🏭 Clusters de Metabolitos Secundários</h3>
+        <p>Esta seção mostra os clusters de genes responsáveis pela produção de compostos bioativos como antibióticos, antifúngicos e outros metabolitos secundários.</p>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number">{{ clusters|length if clusters else 0 }}</div>
+            <div class="stat-label">Clusters Identificados</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ clusters|length if clusters else 0 }}</div>
+            <div class="stat-label">Tipos de Clusters</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ clusters|sum(attribute='gene_count') if clusters else 0 }}</div>
+            <div class="stat-label">Genes nos Clusters</div>
+          </div>
+        </div>
+      </div>
+      
+      {% if clusters %}
+      <!-- Grid de Clusters com dados reais -->
+      <div class="cluster-grid">
+        {% for cluster in clusters %}
+        <div class="cluster-card">
+          <div class="cluster-header">
+            🧬 {{ cluster.region_number|title }} - {{ cluster.cluster_type|title }}
+          </div>
+          <div class="cluster-info">
+            <strong>Tipo:</strong> {{ cluster.cluster_type }}<br>
+            {% if cluster.location_start and cluster.location_end %}
+            <strong>Localização:</strong> {{ "{:,}".format(cluster.location_start) }} - {{ "{:,}".format(cluster.location_end) }} bp<br>
+            {% endif %}
+            <strong>Tamanho:</strong> {{ cluster.size_kb }} kb<br>
+            <strong>Genes:</strong> {{ cluster.gene_count }} CDSs
+            {% if cluster.biosynthetic_genes > 0 %}
+            <br><strong>Biossintéticos:</strong> {{ cluster.biosynthetic_genes }} genes
+            {% endif %}
+          </div>
+          <div class="cluster-genes">
+            {% for gene in cluster.genes[:10] %}
+            <div class="gene-item">
+              <strong>{{ gene.gene }}:</strong> 
+              {% if gene.product %}
+                {{ gene.product }}
+              {% else %}
+                hypothetical protein
+              {% endif %}
+            </div>
+            {% endfor %}
+            {% if cluster.genes|length > 10 %}
+            <div class="gene-item" style="font-style: italic; color: #666;">
+              + {{ cluster.genes|length - 10 }} outros genes...
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <!-- Mensagem quando não há clusters -->
+      <div style="text-align: center; padding: 40px; color: #666;">
+        <h3>🔍 Nenhum cluster de metabolitos secundários encontrado</h3>
+        <p>Este genoma pode não conter clusters de biossíntese de metabolitos secundários<br>
+        ou os clusters podem não ter sido detectados pelo antiSMASH.</p>
+      </div>
+      {% endif %}
+    </div>
+    
+    <p style="margin-top: 30px;"><a href="{{ url_for('index') }}">← Voltar para Upload</a></p>
   </div>
+  
+  <script>
+    function openTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+      
+      // Esconder todos os conteúdos das abas
+      tabcontent = document.getElementsByClassName("tab-content");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].classList.remove("active");
+      }
+      
+      // Remover classe active de todos os botões
+      tablinks = document.getElementsByClassName("tab-button");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("active");
+      }
+      
+      // Mostrar aba selecionada e marcar botão como ativo
+      document.getElementById(tabName).classList.add("active");
+      evt.currentTarget.classList.add("active");
+    }
+  </script>
 </body>
 </html>

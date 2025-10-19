@@ -1,38 +1,73 @@
 # antiSMASH Web Interface
 
-Uma aplicação web em Flask para executar análises de **antiSMASH** (antibiotic & Secondary Metabolite Analysis SHell) de forma fácil e intuitiva, com acompanhamento de progresso em tempo real.
+Uma aplicação web moderna em Flask para executar análises de **antiSMASH** (antibiotic & Secondary Metabolite Analysis SHell) com interface intuitiva, acompanhamento de progresso em tempo real e visualização avançada de clusters de metabolitos secundários.
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![Flask](https://img.shields.io/badge/flask-2.0+-green.svg)
 ![Docker](https://img.shields.io/badge/docker-required-blue.svg)
+![BioPython](https://img.shields.io/badge/biopython-1.79+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## 🔬 Sobre o antiSMASH
 
-O [antiSMASH](https://antismash.secondarymetabolites.org/) é uma ferramenta líder para identificação, anotação e análise de clusters de genes de metabolitos secundários em genomas bacterianos e fúngicos. Esta aplicação web fornece uma interface amigável para executar análises antiSMASH localmente.
+O [antiSMASH](https://antismash.secondarymetabolites.org/) é uma ferramenta mundialmente reconhecida para identificação, anotação e análise de clusters de genes de metabolitos secundários em genomas bacterianos e fúngicos. Esta aplicação web fornece uma interface amigável e moderna para executar análises antiSMASH localmente, com funcionalidades avançadas de visualização.
 
-## ✨ Funcionalidades
+## ✨ Funcionalidades Principais
 
+### 🚀 **Análise Avançada**
 - 📁 **Upload de arquivos FASTA/GenBank** - Suporte para múltiplos formatos
 - 🐳 **Integração com Docker** - Execução isolada e segura do antiSMASH
-- 📊 **Progresso em tempo real** - Acompanhe o andamento da análise com barra de progresso
-- 🧬 **Visualização de proteínas** - Tabela interativa com dados das proteínas identificadas
-- 💾 **Download de resultados** - Acesso completo aos arquivos de saída do antiSMASH
-- 🌐 **Interface em português** - Interface totalmente localizada
+- 📊 **Progresso em tempo real** - Acompanhe o andamento com barra de progresso detalhada
+- 🧬 **Anotações funcionais inteligentes** - Extração aprimorada de informações dos arquivos region
+
+### 📋 **Interface com Abas**
+- **Aba Proteínas** - Visualização completa de todas as proteínas identificadas
+- **Aba Clusters** - Cards visuais dos clusters de metabolitos secundários
+- 📈 **Estatísticas dinâmicas** - Resumos automáticos dos resultados
+- 🎨 **Design responsivo** - Interface moderna e intuitiva
+
+### 🏭 **Visualização de Clusters**
+- 🧬 **Cards informativos** para cada cluster identificado
+- 📍 **Localização genômica** precisa (posições em bp)
+- � **Tipos de clusters** (PKS, NRPS, Terpenos, Lantipeptídeos, etc.)
+- 📊 **Estatísticas detalhadas** (genes biossintéticos, regulatórios, transportadores)
+- 🧾 **Lista de genes** de cada cluster com suas funções
+
+### 💾 **Recursos Avançados**
+- **Download completo** - Acesso a todos os arquivos de saída do antiSMASH
+- **Compatibilidade total** - Funciona com runs novos e existentes
+- 🌐 **Interface em português** - Totalmente localizada
+- 🔄 **Parsing inteligente** - Processa arquivos principais e region automaticamente
 
 ## 🚀 Demonstração
 
-### Fluxo da aplicação:
-1. **Upload** → Envie seu arquivo FASTA/GBK
-2. **Progresso** → Acompanhe a análise em tempo real
-3. **Resultados** → Visualize as proteínas identificadas
+### Fluxo da aplicação aprimorado:
+1. **📤 Upload** → Envie seu arquivo FASTA/GBK
+2. **⏳ Progresso** → Acompanhe a análise em tempo real com detalhes
+3. **🧬 Resultados - Aba Proteínas** → Visualize todas as proteínas com anotações funcionais
+4. **🏭 Resultados - Aba Clusters** → Explore clusters de metabolitos secundários
 
-### Interface de progresso:
+### Interface de progresso em tempo real:
 ```
 Progresso da Análise antiSMASH
-Run: run_20241018_143022
+Run: run_20251019_143022
 [████████████████████████████████████████] 85%
 🔄 antiSMASH: Generating cluster overview...
+
+Status: Processando resultados... (95%)
+```
+
+### Exemplo de resultados:
+```
+📊 Resumo - Aba Proteínas:
+• 8,633 proteínas totais
+• 880 com anotação funcional
+• 7,753 hipotéticas
+
+🏭 Resumo - Aba Clusters:
+• 29 clusters identificados
+• Tipos: PKS, NRPS, Terpenos, Lantipeptídeos
+• 450+ genes nos clusters
 ```
 
 ## 🛠️ Instalação
@@ -98,10 +133,18 @@ antismash-web/
 └── runs/               # Resultados das análises (auto-criado)
 ```
 
-### Fluxo de dados:
+### Fluxo de dados aprimorado:
 ```
-Upload → Docker antiSMASH → Parse GenBank → Visualização Web
+Upload → Docker antiSMASH → Parse Inteligente → Abas Interativas
+  ↓           ↓                    ↓                ↓
+FASTA/GBK → Análise → Arquivos principais + → Proteínas + Clusters
+                      arquivos region
 ```
+
+### Arquivos processados:
+- **Arquivo principal** (ex: `sequence.gbk`) → Todas as proteínas
+- **Arquivos region** (ex: `NC_*.regionXXX.gbk`) → Clusters específicos  
+- **Priorização inteligente** → Anotações funcionais dos regions
 
 ## 🔧 Configuração avançada
 
@@ -130,14 +173,30 @@ A aplicação monitora o progresso da análise antiSMASH através de:
 
 ## 🧬 Dados extraídos
 
+### 🔬 **Proteínas** (Aba 1):
 Para cada proteína identificada, a aplicação extrai:
 
-- **Record ID**: Identificador da sequência
-- **Gene/Locus**: Nome do gene ou locus tag
-- **Product**: Descrição do produto proteico  
+- **Record ID**: Identificador da sequência genômica
+- **Gene/Locus**: Nome do gene ou locus tag  
+- **Product**: Anotação funcional inteligente (gene_functions, product, sec_met_domain)
 - **AA Length**: Comprimento em aminoácidos
-- **Sequence**: Sequência de aminoácidos (primeiros 120 aa)
+- **Sequence**: Sequência completa de aminoácidos (preview de 120 aa)
+- **Location**: Posição no genoma (início:fim, orientação)
 - **Source**: Arquivo GenBank de origem
+
+### 🏭 **Clusters de Metabolitos Secundários** (Aba 2):
+Para cada cluster identificado, a aplicação extrai:
+
+- **Region Name**: Identificador do cluster (ex: NC_003888.3.region001)
+- **Cluster Type**: Tipo de metabolito (T1PKS, NRPS, terpene, lanthipeptide, etc.)
+- **Location**: Posição precisa no genoma (início - fim em bp)
+- **Size**: Tamanho do cluster em kilobases (kb)
+- **Gene Count**: Número total de genes no cluster
+- **Gene Classification**: 
+  - Genes biossintéticos (enzimas principais)
+  - Genes regulatórios (controle de expressão)  
+  - Genes de transporte (exportação/importação)
+- **Detailed Gene List**: Lista completa com função de cada gene
 
 ## 🔍 API Endpoints
 
@@ -168,12 +227,27 @@ Para cada proteína identificada, a aplicação extrai:
 
 ## 📝 Roadmap
 
-- [ ] Sistema de autenticação
-- [ ] Histórico de análises
-- [ ] Análise de múltiplos arquivos
-- [ ] Visualização gráfica dos clusters
-- [ ] API REST completa
-- [ ] Containerização da aplicação web
+### ✅ **Implementado**
+- [x] ✨ **Interface com abas** (Proteínas + Clusters)
+- [x] 🧬 **Anotações funcionais aprimoradas** (gene_functions, sec_met_domain)
+- [x] 🏭 **Visualização de clusters** com cards informativos
+- [x] 📊 **Estatísticas dinâmicas** em tempo real
+- [x] 🔄 **Parsing inteligente** de arquivos region
+- [x] 📱 **Design responsivo** moderno
+
+### 🚧 **Em desenvolvimento**
+- [ ] 📈 **Visualização gráfica** dos clusters (mapa genômico)
+- [ ] 🔍 **Filtros avançados** por tipo de cluster/função
+- [ ] 📋 **Exportação de dados** (CSV, Excel)
+- [ ] 🔗 **Links externos** (UniProt, NCBI, PDB)
+
+### 🎯 **Próximas funcionalidades**
+- [ ] 👤 **Sistema de autenticação** e usuários
+- [ ] 📚 **Histórico de análises** persistente  
+- [ ] 📦 **Análise de múltiplos arquivos** em lote
+- [ ] 🌐 **API REST completa** para integração
+- [ ] 🐳 **Containerização** da aplicação web
+- [ ] ☁️ **Deploy em nuvem** (AWS, Azure, GCP)
 
 ## 🐛 Solução de problemas
 
@@ -199,18 +273,45 @@ docker ps
 
 Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
+## 🎓 **Casos de uso acadêmicos**
+
+### 🔬 **Pesquisa em Microbiologia**
+- Descoberta de novos antibióticos em *Streptomyces*
+- Análise de diversidade de metabolitos secundários  
+- Estudos de evolução de clusters biossintéticos
+
+### 💊 **Biotecnologia Farmacêutica**
+- Prospecção de compostos bioativos
+- Engenharia de vias metabólicas
+- Otimização de produção de antibióticos
+
+### 📚 **Educação**
+- Ensino de bioinformática aplicada
+- Aulas práticas de genômica bacteriana
+- Workshops de descoberta de fármacos
+
+## 🏆 **Diferenciais técnicos**
+
+- ⚡ **Performance otimizada** - Parsing paralelo de múltiplos arquivos
+- 🧠 **Inteligência na extração** - Priorização automática de anotações funcionais
+- 🎨 **UX moderna** - Interface intuitiva com abas e cards responsivos
+- 🔄 **Compatibilidade total** - Funciona com runs antigos e novos
+- 🌐 **Totalmente em português** - Primeira interface web antiSMASH em PT-BR
+
 ## 🙏 Agradecimentos
 
-- [antiSMASH team](https://antismash.secondarymetabolites.org/) pela ferramenta incrível
-- [Flask](https://flask.palletsprojects.com/) pelo framework web
-- [BioPython](https://biopython.org/) pela manipulação de dados biológicos
+- [antiSMASH team](https://antismash.secondarymetabolites.org/) pela ferramenta científica excepcional
+- [Flask](https://flask.palletsprojects.com/) pelo framework web elegante e poderoso
+- [BioPython](https://biopython.org/) pela biblioteca robusta de bioinformática
+- Comunidade científica brasileira pelo feedback e sugestões
 
 ## 📧 Contato
 
-Thallyson Silva - [@thallyson1997](https://github.com/thallyson1997)
+**Thallyson Silva** - [@thallyson1997](https://github.com/thallyson1997)  
+🔬 Desenvolvedor & Pesquisador em Bioinformática
 
-Link do projeto: [https://github.com/thallyson1997/antismash-web](https://github.com/thallyson1997/antismash-web)
+**Link do projeto**: [https://github.com/thallyson1997/antismash-web](https://github.com/thallyson1997/antismash-web)
 
 ---
 
-⭐ **Se este projeto foi útil para você, considere dar uma estrela!**
+⭐ **Se este projeto foi útil para sua pesquisa, considere dar uma estrela e citar em suas publicações!** ⭐
